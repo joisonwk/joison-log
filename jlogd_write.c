@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <sys/uio.h>
 #include "jlog.h"
-#define LOGGER_DIR	"/var/log"
+#define LOGGER_DIR	"/home/joison/joison-log"
 #define LOGGER_LOG_MAIN "main.log"
 #define LOGGER_LOG_CONNECTION	"conn.log"
 #define LOGGER_LOG_PROCESS "process.log"
@@ -22,9 +22,11 @@
 /*debug version write log info to stdout*/
 #define log_writev(fd, vec, nr) writev(STDOUT_FILENO, vec, nr)
 #define log_open(filename, mode) open(filename, mode)
+#define log_close(fd) close(STDOUT_FILENO)
 #else
 #define log_writev(fd, vec, nr) writev(fd, vec, nr)
 #define log_open(filename, mode) open(filename, mode)
+#define log_close(fd) close(fd)
 #endif
 
 
@@ -103,13 +105,16 @@ static int __write_to_log_init(log_id_t log_id, struct iovec *vec, size_t nr)
 		OPEN_AND_ASSIGN_FC(CONNECTION);
 		OPEN_AND_ASSIGN_FC(PROCESS);
 		OPEN_AND_ASSIGN_FC(EVENTS);
+
 		write_to_log = __write_to_log_kernel;
+
 		if(log_fds[LOG_ID_MAIN] < 0 || log_fds[LOG_ID_CONNECTION] < 0|| 
 		log_fds[LOG_ID_PROCESS] < 0 || log_fds[LOG_ID_EVENTS] < 0){
 			log_close(log_fds[LOG_ID_MAIN]);
 			log_close(log_fds[LOG_ID_CONNECTION]);
 			log_close(log_fds[LOG_ID_PROCESS]);
 			log_close(log_fds[LOG_ID_EVENTS]);
+
 			write_to_log = __write_to_log_null;
 		}
 	}

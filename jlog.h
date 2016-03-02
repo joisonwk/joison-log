@@ -20,12 +20,30 @@ typedef enum android_LogPriority {
 #define LOGW(...) ((void)LOG(LOG_WARN, LOG_TAG, ##__VA_ARGS__))
 #define LOGE(...) ((void)LOG(LOG_ERROR, LOG_TAG, ##__VA_ARGS__))
 
-#define LOG(prio, tag, fmt,...) (__android_log_print(prio, tag, fmt, ##__VA_ARGS__))
+#define LOG(prio, tag, ...) \
+	LOG_PRI(ANDROID_##prio, tag, ##__VA_ARGS__) 
+
+#define LOG_PRI(prio, tag, ...) \
+	({ \
+		if(((ANDROID_LOG_VERBOSE==prio)&&(LOG_NDEBUG==0)) ||\
+		((ANDROID_LOG_DEBUG==prio)&&(LOG_NDDEBUG==0)) ||\
+		((ANDROID_LOG_INFO==prio)&&(LOG_NIDEBUG==0)) ||\
+		(ANDROID_LOG_WARN==prio)			||\
+		(ANDROID_LOG_ERROR==prio) 			||\
+		(ANDROID_LOG_FATAL==prio)) 			\
+		android_log_print(prio, tag, ##__VA_ARGS__);\
+	})
+
+#define android_log_print(prio,tag,...) \
+__android_log_print(prio, tag, ##__VA_ARGS__)
+
 int __android_log_print(int prio, const char *tag, const char *fmt, ...);
+/*
 void __android_log_assert(const char *cond, const char *tag,
 		const char *fmt, ...);
 int __android_log_vprint(int prio, const char *tag, const char *fmt, va_list ap);
 int __android_log_bwrite(int32_t tag, const void *payload, size_t len);
 int __android_log_btwrite(int32_t tag, char type, const void *payload,
 	size_t len);
+*/
 #endif
