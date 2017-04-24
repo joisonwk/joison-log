@@ -3,6 +3,7 @@
 /*
  * Android log priority values, in ascending priority order.
  */
+/**/
 typedef enum android_LogPriority {
 	ANDROID_LOG_UNKNOWN = 0,
 	ANDROID_LOG_DEFAULT,    /* only for SetMinPriority() */
